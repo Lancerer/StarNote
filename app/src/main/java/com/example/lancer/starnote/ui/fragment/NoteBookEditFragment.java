@@ -7,6 +7,8 @@ import android.widget.RelativeLayout;
 
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseFragment;
+import com.example.lancer.starnote.bean.NoteBookData;
+import com.example.lancer.starnote.util.AnimUtils;
 
 public class NoteBookEditFragment extends BaseFragment implements View.OnClickListener, View.OnTouchListener {
 
@@ -37,6 +39,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     private android.widget.FrameLayout llFontSuper;
     private android.widget.ImageView ivSuperSelect;
     private RelativeLayout mLayoutMenu;
+    private NoteBookData mNoteBookData;
 
     @Override
     protected int initLayout() {
@@ -92,12 +95,30 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.note_detail_img_green:
+                mNoteBookData.setColor(0);
+                break;
+            case R.id.note_detail_img_blue:
+                mNoteBookData.setColor(3);
+                break;
+            case R.id.note_detail_img_purple:
+                mNoteBookData.setColor(4);
+                break;
+            case R.id.note_detail_img_yellow:
+                mNoteBookData.setColor(1);
+                break;
+            case R.id.note_detail_img_red:
+                mNoteBookData.setColor(2);
+                break;
 
+        }
     }
 
     /**
      * 点击调色板调整背景颜色
-     *当他是gone时弹出，反之收回
+     * 当他是gone时弹出，反之收回
+     *
      * @param v
      * @param event
      * @return
@@ -107,7 +128,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         if (MotionEvent.ACTION_DOWN == event.getAction()) {
             if (mLayoutMenu.getVisibility() == View.GONE) {
                 openMenu();
-            }else {
+            } else {
                 closeMenu();
             }
         }
@@ -115,9 +136,10 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void closeMenu() {
-
+        AnimUtils.CloseAnimation(mLayoutMenu, noteDetailImgButton, 800);
     }
 
     private void openMenu() {
+        AnimUtils.OpenAnimation(mLayoutMenu, noteDetailImgButton, 500);
     }
 }
