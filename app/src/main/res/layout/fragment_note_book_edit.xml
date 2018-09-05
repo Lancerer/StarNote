@@ -69,6 +69,13 @@
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_singleLine="true"><!--   fab:menu_icon="@drawable/actionbar_icon_add" #ccffffff-->
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/menu_item_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/save"
+            fab:fab_label="保存"
+            fab:fab_size="mini" />
+        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/menu_item_text_font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -109,7 +116,6 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/font_size_selector_bg"
         android:visibility="gone">
-        <!--android:layout_gravity="bottom"-->
         <!--todo 设置字体大小的布局-->
         <FrameLayout
             android:id="@+id/ll_font_small"

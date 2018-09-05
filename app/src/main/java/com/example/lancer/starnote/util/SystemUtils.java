@@ -2,6 +2,7 @@ package com.example.lancer.starnote.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -22,11 +23,26 @@ public class SystemUtils {
     private Context mContext;
     //SharedPreferences文件名
     private String PREF_NAME = "config";
-    private final String KEY = "key";
+    private final String KEY_DRAFT = "key_draft";
     private final String BG_PIC_PATH = "bg_pic_path";
 
     public SystemUtils(Context context) {
         mContext = context;
+    }
+
+    /**
+     * 获得便签的草稿
+     */
+    public String getNoteDraft() {
+        return getPreferences().getString(KEY_DRAFT, "");
+    }
+
+    /**
+     * 设置草稿
+     * @param str
+     */
+    public void setNoteDraft(String str) {
+        set(KEY_DRAFT, str);
     }
 
     public String getPath() {
@@ -45,9 +61,8 @@ public class SystemUtils {
     }
 
     public void saveBgPicPath(String path) {
-       set(BG_PIC_PATH, path);
+        set(BG_PIC_PATH, path);
         //Sputil.put(mContext, BG_PIC_PATH, path);
-
     }
 
     public void set(String key, String value) {
@@ -68,5 +83,13 @@ public class SystemUtils {
             e.printStackTrace();
         }
         return bitmap;
+    }
+
+    public static void ShowNote(String str, Activity activity) {
+        Intent intent = new Intent("android.intent.action.SEND");
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, str);
+        intent = Intent.createChooser(intent, "繁星笔记便签分享");
+        activity.startActivity(intent);
     }
 }

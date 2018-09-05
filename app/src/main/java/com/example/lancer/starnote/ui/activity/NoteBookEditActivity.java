@@ -13,6 +13,7 @@ import com.example.lancer.starnote.ui.fragment.NoteBookEditFragment;
 public class NoteBookEditActivity extends BaseActivity {
 
     private android.widget.FrameLayout flPool;
+    private NoteBookEditFragment mNoteBookEditFragment;
 
     @Override
     protected int initLayout() {
@@ -30,7 +31,17 @@ public class NoteBookEditActivity extends BaseActivity {
         setTitle("编写便签");
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        NoteBookEditFragment fragment = new NoteBookEditFragment();
-        ft.replace(R.id.fl_pool_editf, fragment).commit();
+        mNoteBookEditFragment= new NoteBookEditFragment();
+        ft.replace(R.id.fl_pool_editf, mNoteBookEditFragment).commit();
+    }
+
+    /**
+     * 监听Fragment的返回键
+     */
+    @Override
+    public void onBackPressed() {
+        if(!mNoteBookEditFragment.onBackPressed()){
+            super.onBackPressed();
+        }
     }
 }
