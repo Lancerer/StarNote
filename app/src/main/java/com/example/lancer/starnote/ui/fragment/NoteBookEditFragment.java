@@ -73,6 +73,12 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
             0xffccf2fd,// 蓝色
             0xfff7f5f6,// 紫色
     };
+    public static final int[] sTitleBackGrounds = { 0xffcef3d4,// 绿色
+            0xffebe5a9,// 黄色
+            0xffecc4c3,// 红色
+            0xffa9d5e2,// 蓝色
+            0xffddd7d9,// 紫色
+    };
     private com.github.clans.fab.FloatingActionButton menuItemSave;
 
     private int SizeId;

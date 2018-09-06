@@ -82,7 +82,7 @@ public class NoteDataDao {
     public List<NoteBookData> query(String where) {
         SQLiteDatabase sqlite = mDBHelper.getReadableDatabase();
         ArrayList<NoteBookData> data = null;
-        data = new ArrayList<NoteBookData>();
+        data = new ArrayList<>();
         Cursor cursor = sqlite.rawQuery("select * from "
                 + DBHelper.NOTE_TABLE_NAME + where, null);
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -141,8 +141,7 @@ public class NoteDataDao {
         mDBHelper.close();
     }
 
-    public void insertIntroduce(Context context)
-    {
+    public void insertIntroduce(Context context) {
         NoteBookData editData=new NoteBookData();
         if (editData.getId() == 0) {
             editData.setId(-1

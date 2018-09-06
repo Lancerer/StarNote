@@ -13,4 +13,8 @@ public class Constants {
     public static final int LARGE = 3;
     public static final int SUPER = 4;
 
+    public static final int MOVE_START = 1;
+    public static final int MOVE_FINISH = 2;
+    public static final int MOVE_CANCEL = 3;
+
 }

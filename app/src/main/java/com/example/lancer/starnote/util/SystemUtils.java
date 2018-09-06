@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.DisplayMetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +39,16 @@ public class SystemUtils {
     }
 
     /**
+     * 获取屏幕宽度
+     */
+    public static int getScreenW(Context aty) {
+        DisplayMetrics dm = aty.getResources().getDisplayMetrics();
+        return dm.widthPixels;
+    }
+
+    /**
      * 设置草稿
+     *
      * @param str
      */
     public void setNoteDraft(String str) {

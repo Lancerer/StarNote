@@ -35,7 +35,7 @@ public class MainActivity extends BaseActivity
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private android.widget.FrameLayout flPool;
-    private FloatingActionButton fab;
+    public FloatingActionButton fab;
     private NavigationView navView;
     private NoteBookFragment mNoteBookFragment;
 
