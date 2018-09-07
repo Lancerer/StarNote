@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.example.lancer.starnote.R;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * author: Lancer
  * date：2018/9/6
- * des:
+ * des: NoteBookFragment的DragView的适配器
  * email:tyk790406977@126.com
  */
 
@@ -32,7 +32,7 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
     private int height;
     private int width;
     private Activity mActivity;
-    private boolean DataChange=false;
+    private boolean DataChange = false;
 
     public DragAdapter(Activity aty, List<NoteBookData> datas) {
         super();
@@ -41,6 +41,16 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
         this.mActivity = aty;
         width = new SystemUtils(aty).getScreenW(aty) / 2;
         height = (int) aty.getResources().getDimension(R.dimen.space_35);
+    }
+
+    //刷新界面
+    public void refurbishData(List<NoteBookData> datas) {
+        if (datas == null) {
+            datas = new ArrayList<>(1);
+        }
+        Collections.sort(datas);
+        this.mLists = datas;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -55,8 +65,9 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return 0;
     }
+
     /**
      * 数据是否发生了改变
      *
@@ -65,6 +76,7 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
     public boolean getDataChange() {
         return DataChange;
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
@@ -80,7 +92,7 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        ViewGroup.LayoutParams layoutParams = viewHolder.content.getLayoutParams();
+        LayoutParams layoutParams = (LayoutParams) viewHolder.content.getLayoutParams();
         layoutParams.height = (layoutParams.width - height);
         layoutParams.width = width;
         viewHolder.content.setLayoutParams(layoutParams);
@@ -92,6 +104,7 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
         viewHolder.thumbtack.setImageResource(NoteBookEditFragment.sThumbtackImgs[data.getColor()]);
         viewHolder.content.setText(Html.fromHtml(data.getContent()));
         viewHolder.content.setBackgroundColor(NoteBookEditFragment.sBackGrounds[data.getColor()]);
+        //todo 作用未知
         if (position == currentHidePosition) {
             convertView.setVisibility(View.GONE);
         } else {
@@ -101,22 +114,14 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
         return convertView;
     }
 
-    public void refurbishData(List<NoteBookData> datas) {
-        if (datas == null) {
-            datas = new ArrayList<NoteBookData>(1);
-        }
-        Collections.sort(datas);
-        this.mLists = datas;
-        notifyDataSetChanged();
-    }
+
     private class ViewHolder {
         TextView date;
-        ImageView state;
         ImageView thumbtack;
         View titleBar;
         TextView content;
     }
-
+    //todo 作用未知
     @Override
     public void reorderItems(int oldPosition, int newPosition) {
         DataChange = true;
@@ -135,7 +140,7 @@ public class DragAdapter extends BaseAdapter implements DragGridView.GridBaseAda
         }
         mLists.set(newPosition, temp);
     }
-
+    //todo 作用未知
     @Override
     public void setHideItem(int hidePosition) {
         this.currentHidePosition = hidePosition;

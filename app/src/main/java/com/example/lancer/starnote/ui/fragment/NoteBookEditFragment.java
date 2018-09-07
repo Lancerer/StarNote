@@ -27,6 +27,7 @@ import com.example.lancer.starnote.util.DialogUtils;
 import com.example.lancer.starnote.util.StringUtils;
 import com.example.lancer.starnote.util.SystemUtils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,20 +74,27 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
             0xffccf2fd,// 蓝色
             0xfff7f5f6,// 紫色
     };
-    public static final int[] sTitleBackGrounds = { 0xffcef3d4,// 绿色
+    //放时间的bg
+    public static final int[] sTitleBackGrounds = {
+            0xffcef3d4,// 绿色
             0xffebe5a9,// 黄色
             0xffecc4c3,// 红色
             0xffa9d5e2,// 蓝色
             0xffddd7d9,// 紫色
     };
+    //Fab保存功能
     private com.github.clans.fab.FloatingActionButton menuItemSave;
 
-    private int SizeId;
     private static final Map<Integer, Integer> TextFontSelectMap = new HashMap<>();
 
     static {
         TextFontSelectMap.put(Constants.SMALL, R.id.iv_small_select);
     }
+
+    public static final String WHERE_FROM = "DATA_FROM_WHERE";
+    public static final int FROM_FAB = 1;
+    public static final int FROM_ITEM = 0;
+    private int whereFrom = FROM_FAB;// 从哪个界面来
 
     @Override
     protected int initLayout() {
@@ -125,15 +133,24 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         menuItemSave = view.findViewById(R.id.menu_item_save);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle_key = getActivity().getIntent().getBundleExtra("bundle_key");
+        if (bundle_key != null) {
+            mNoteBookData = (NoteBookData) bundle_key.getSerializable("list");
+            whereFrom = bundle_key.getInt(WHERE_FROM, FROM_FAB);
+        }
+    }
 
     @Override
     protected void initData() {
+        //初始化数据库数据
         mNoteDataDao = new NoteDataDao(getContext());
         if (mNoteBookData == null) {
             mNoteBookData = new NoteBookData();
             mNoteBookData.setContent("欢迎使用繁星笔记");
             isNewNote = true;
-
         }
         if (StringUtils.isEmpty(mNoteBookData.getDate())) {
             mNoteBookData.setDate(StringUtils.getDataTime("yyyy/MM/dd"));
@@ -149,24 +166,24 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         noteDetailEdit.setSingleLine(false);
         noteDetailEdit.setText(Html.fromHtml(mNoteBookData.getContent().toString()));
         noteDetailEdit.setBackgroundColor(sBackGrounds[mNoteBookData.getColor()]);
-
-
     }
 
     private void initListener() {
+        //调节便利贴背景颜色
         noteDetailImgBlue.setOnClickListener(this);
         noteDetailImgGreen.setOnClickListener(this);
         noteDetailImgPurple.setOnClickListener(this);
         noteDetailImgRed.setOnClickListener(this);
         noteDetailImgYellow.setOnClickListener(this);
-
+        //Fab的点击事件
         menuItemClock.setOnClickListener(this);
         menuItemDesktop.setOnClickListener(this);
         menuItemSave.setOnClickListener(this);
         menuItemShare.setOnClickListener(this);
         menuItemTextFont.setOnClickListener(this);
 
-        noteDetailImgButton.setOnTouchListener(this);//todo 点击调色板调整背景颜色
+        //todo 点击调色板调整背景颜色
+        noteDetailImgButton.setOnTouchListener(this);
         mLayoutMenu.setOnTouchListener(this);
 
 
@@ -286,8 +303,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
             case R.id.menu_item_text_font:
                 setTextFont();
                 break;
-
-
             case R.id.ll_font_small:
                 break;
             case R.id.ll_font_normal:
@@ -298,6 +313,11 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                 break;
 
         }
+        //更换便利贴的颜色
+        noteDetailImgThumbtack.setImageResource(sThumbtackImgs[mNoteBookData.getColor()]);
+        noteDetailEdit.setBackgroundColor(sBackGrounds[mNoteBookData.getColor()]);
+        noteDetailTitlebar.setBackgroundColor(sTitleBackGrounds[mNoteBookData.getColor()]);
+        closeMenu();
     }
 
     /**
@@ -382,6 +402,11 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         AnimUtils.OpenAnimation(mLayoutMenu, noteDetailImgButton, 500);
     }
 
+    /**
+     * 返回键保存草稿
+     *
+     * @return
+     */
     public boolean onBackPressed() {
         if (isNewNote) {
             final String NoteText = noteDetailEdit.getText().toString();

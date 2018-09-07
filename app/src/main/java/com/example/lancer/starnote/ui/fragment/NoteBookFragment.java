@@ -2,7 +2,10 @@ package com.example.lancer.starnote.ui.fragment;
 
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.adapter.DragAdapter;
@@ -10,13 +13,13 @@ import com.example.lancer.starnote.base.BaseFragment;
 import com.example.lancer.starnote.bean.NoteBookData;
 import com.example.lancer.starnote.db.NoteDataDao;
 import com.example.lancer.starnote.ui.activity.MainActivity;
+import com.example.lancer.starnote.ui.activity.NoteBookEditActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class NoteBookFragment extends BaseFragment {
-
     private com.example.lancer.starnote.widget.DragGridView dragView;
     private NoteDataDao mNoteDataDao;
     private List<NoteBookData> mLists;
@@ -44,6 +47,17 @@ public class NoteBookFragment extends BaseFragment {
             mDragAdapter = new DragAdapter(mActivity, mLists);
         }
         dragView.setAdapter(mDragAdapter);
+        dragView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Bundle bundle = new Bundle();
+                bundle.putInt(NoteBookEditFragment.WHERE_FROM, NoteBookEditFragment.FROM_ITEM);
+                bundle.putSerializable("list", mLists.get(position));
+                Intent intent = new Intent(getActivity(), NoteBookEditActivity.class);
+                intent.putExtra("bundle_key", bundle);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -52,6 +66,10 @@ public class NoteBookFragment extends BaseFragment {
         refurbish();
         ((MainActivity) getActivity()).fab.show();
     }
+
+    /**
+     * 查询数据库刷新界面
+     */
     private void refurbish() {
         mLists = mNoteDataDao.query();
         if (mLists != null) {

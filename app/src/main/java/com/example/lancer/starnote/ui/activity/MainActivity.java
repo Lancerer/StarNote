@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseActivity;
 import com.example.lancer.starnote.ui.fragment.ChangeBgFragment;
+import com.example.lancer.starnote.ui.fragment.NoteBookEditFragment;
 import com.example.lancer.starnote.ui.fragment.NoteBookFragment;
 import com.example.lancer.starnote.util.SystemUtils;
 
@@ -67,9 +68,9 @@ public class MainActivity extends BaseActivity
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, NoteBookEditActivity.class);
                 Bundle bundle = new Bundle();
-              /*  bundle.putInt();
-                intent.putExtra();*/
-              //todo 未完成
+                bundle.putInt(NoteBookEditFragment.ACTION_ADD_SHORTCUT, NoteBookEditFragment.FROM_FAB);
+                intent.putExtra("bundle_key", bundle);
+                //todo 未完成
                 startActivity(intent);
 
             }

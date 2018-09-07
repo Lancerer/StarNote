@@ -26,14 +26,6 @@
             android:textColor="#666"
             android:textSize="12sp" />
 
-  <!--      <ImageView
-            android:id="@+id/item_note_img_state"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="@null"
-            android:src="@drawable/icon_up" />-->
     </RelativeLayout>
 
     <TextView

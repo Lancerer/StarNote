@@ -11,14 +11,11 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
-
-import com.example.lancer.starnote.adapter.DragAdapter;
 import com.example.lancer.starnote.util.Constants;
 
 /**
