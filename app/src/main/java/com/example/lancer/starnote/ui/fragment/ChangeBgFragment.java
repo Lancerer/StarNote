@@ -47,7 +47,7 @@ public class ChangeBgFragment extends BaseFragment {
         gvChange.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String path = (mAdapter.getItem(position)).path;
+                String path = mLists.get(position).path;
 
                 systemUtils = new SystemUtils(getActivity());
                 systemUtils.saveBgPicPath(path);

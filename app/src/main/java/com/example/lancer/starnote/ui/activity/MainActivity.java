@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -70,7 +71,6 @@ public class MainActivity extends BaseActivity
                 Bundle bundle = new Bundle();
                 bundle.putInt(NoteBookEditFragment.ACTION_ADD_SHORTCUT, NoteBookEditFragment.FROM_FAB);
                 intent.putExtra("bundle_key", bundle);
-                //todo 未完成
                 startActivity(intent);
 
             }
@@ -82,7 +82,7 @@ public class MainActivity extends BaseActivity
 
         mNavigationView.setNavigationItemSelectedListener(this);
         initMainFragment();
-        initBigPic();//todo 设置背景图
+        initBigPic();//todo 更换背景图
     }
 
     private void initBigPic() {
@@ -95,13 +95,21 @@ public class MainActivity extends BaseActivity
             }
         }
     }
-
+    private long mBackPressedTime = 0;
     @Override
     public void onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            long curTime = SystemClock.uptimeMillis();
+            if ((curTime - mBackPressedTime) < (2 * 1000)) {
+                finish();
+                System.exit(0);
+            } else {
+                mBackPressedTime = curTime;
+                Snackbar.make(mDrawer, "在按一次退出程序", Snackbar.LENGTH_LONG).show();
+            }
+            //   super.onBackPressed();
         }
     }
 
@@ -142,9 +150,9 @@ public class MainActivity extends BaseActivity
             share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
             share_intent.setType("text/plain");//设置分享内容的类型
             share_intent.putExtra(Intent.EXTRA_SUBJECT, "aaa");//添加分享内容标题
-            share_intent.putExtra(Intent.EXTRA_TEXT, "bbb");//添加分享内容
+            share_intent.putExtra(Intent.EXTRA_TEXT, "欢迎使用繁星笔记");//添加分享内容
             //创建分享的Dialog
-            share_intent = Intent.createChooser(share_intent, "ccc");
+            share_intent = Intent.createChooser(share_intent, "app推荐");
             this.startActivity(share_intent);
 
 

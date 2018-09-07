@@ -149,7 +149,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         mNoteDataDao = new NoteDataDao(getContext());
         if (mNoteBookData == null) {
             mNoteBookData = new NoteBookData();
-            mNoteBookData.setContent("欢迎使用繁星笔记");
+            mNoteBookData.setContent(new SystemUtils(getActivity()).getNoteDraft());
             isNewNote = true;
         }
         if (StringUtils.isEmpty(mNoteBookData.getDate())) {
@@ -189,45 +189,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
 
     }
 
- /*
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN
-                        | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-    }
-
-    *//**
-     * 保存按钮
-     *
-     * @param menu
-     * @param inflater
-     *//*
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.notebook_edit_save, menu);
-    }
-
-    *//**
-     * 保存按钮点击保存
-     *
-     * @param item
-     * @return
-     *//*
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_save:
-                if (!StringUtils.isEmpty(noteDetailEdit.getText().toString())) {
-                    save();
-                    getActivity().finish();
-                }
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
 
 
     /**
@@ -415,13 +376,13 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                new SystemUtils(getContext()).setNoteDraft(NoteText + "[草稿]");
+                               new SystemUtils(getContext()).setNoteDraft(NoteText + "[草稿]");
                                 getActivity().finish();
                             }
                         }, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                new SystemUtils(getContext()).getNoteDraft();
+                                new SystemUtils(getContext()).setNoteDraft("");
                                 getActivity().finish();
                             }
                         }).show();

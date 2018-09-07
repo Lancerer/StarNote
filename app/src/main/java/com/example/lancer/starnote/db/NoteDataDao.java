@@ -141,17 +141,5 @@ public class NoteDataDao {
         mDBHelper.close();
     }
 
-    public void insertIntroduce(Context context) {
-        NoteBookData editData=new NoteBookData();
-        if (editData.getId() == 0) {
-            editData.setId(-1
-                    * StringUtils.toInt(
-                    StringUtils.getDataTime("dddHHmmss"), 0));
-        }
-        editData.setUnixTime(StringUtils.getDataTime("yyyy-MM-dd HH:mm:ss"));
-        editData.setContent("欢迎使用颖火虫记事本，赶快记下你此刻的灵感吧！");
-     //   editData.setUserId(AccountUtils.getUserId(context));
-        save(editData);
-    }
 
 }
