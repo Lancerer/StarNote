@@ -3,6 +3,7 @@ package com.example.lancer.starnote.widget;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Message;
@@ -16,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+
 import com.example.lancer.starnote.util.Constants;
 
 /**
@@ -32,6 +34,8 @@ import com.example.lancer.starnote.util.Constants;
  */
 
 public class DragGridView extends GridView {
+    private static final int MOVE_OFFSET = 25;
+
     /**
      * item长按响应时间
      */
@@ -66,6 +70,11 @@ public class DragGridView extends GridView {
     private int mOffset2Top; // DragGridView距离屏幕顶部的偏移量
     private int mOffset2Left;
 
+
+    private final TouchRect moveRect = new TouchRect();
+    private final TouchRect gridRect = new TouchRect();
+    private final TouchRect trashRect = new TouchRect();
+
     private int mDownScrollBorder; // DragGridView自动向下滚动的边界值
     private int mUpScrollBorder; // DragGridView自动向上滚动的边界值
 
@@ -93,42 +102,6 @@ public class DragGridView extends GridView {
         //todo
     }
 
-    public interface onMoveListener {
-        void startMove();
-
-        void finishMove();
-
-        void cancleMove();
-
-    }
-
-    public interface onDeleteListener {
-        void onDelete(int position);
-    }
-
-    public interface OnChanageListener {
-
-        /**
-         * 当item交换位置的时候回调的方法，我们只需要在该方法中实现数据的交换即可
-         *
-         * @param form 开始的position
-         * @param to   拖拽到的position
-         */
-        public void onChange(int form, int to);
-    }
-
-    /**
-     * 设置回调接口
-     *
-     * @param onChanageListener
-     */
-    public void setOnChangeListener(OnChanageListener onChanageListener) {
-        this.onChanageListener = onChanageListener;
-    }
-
-    public void setOnDeleteListener(onDeleteListener l) {
-        this.mDeleteListener = l;
-    }
 
     /**
      * 设置响应拖拽的毫秒数，默认是1000毫秒
@@ -139,6 +112,22 @@ public class DragGridView extends GridView {
         this.dragResponseMinute = dragResponseMS;
     }
 
+    /**
+     * 设置垃圾桶图标
+     *
+     * @param trashView
+     */
+    public void setTrashView(View trashView) {
+        this.mTrashView = trashView;
+    }
+
+    //todo
+    public void setDragEnable(boolean isDrag) {
+        this.canDrag = isDrag;
+        if (canDrag) {
+            handler.removeCallbacks(mLongClickRunnable);
+        }
+    }
 
     /**
      * 获得状态栏的高度
@@ -310,6 +299,12 @@ public class DragGridView extends GridView {
             case MotionEvent.ACTION_DOWN:
                 mDownX = (int) ev.getX();
                 mDownY = (int) ev.getY();
+
+                //todo
+                moveRect.left = mDownX - MOVE_OFFSET;
+                moveRect.right = mDownX + MOVE_OFFSET;
+                moveRect.top = mDownY - MOVE_OFFSET;
+                moveRect.bottom = mDownY + MOVE_OFFSET;
                 //根据按下的X,Y坐标获取所点击item的position
                 mDragPosition = pointToPosition(mDownX, mDownY);
 
@@ -352,6 +347,11 @@ public class DragGridView extends GridView {
             case MotionEvent.ACTION_UP:
                 handler.removeCallbacks(mLongClickRunnable);
                 handler.removeCallbacks(mScrollRunnable);
+                if (moved && getAdapter().getCount() > 0) {
+                    handler.sendEmptyMessage(Constants.MOVE_FINISH);
+                } else {
+                    handler.sendEmptyMessage(Constants.MOVE_CANCEL);
+                }
                 break;
         }
         return super.dispatchTouchEvent(ev);
@@ -386,20 +386,36 @@ public class DragGridView extends GridView {
     public boolean onTouchEvent(MotionEvent ev) {
         if (isDrag && mDragImageView != null) {
             switch (ev.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    initRecord();
+                    break;
                 case MotionEvent.ACTION_MOVE:
                     moveX = (int) ev.getX();
                     moveY = (int) ev.getY();
                     onDragItem(moveX, moveY);
+                    if (mTrashView != null) {
+                        if (inTrash(moveX, moveY)) {
+                            mTrashView.setScaleX(1.7f);
+                            mTrashView.setScaleY(1.7f);
+                        } else {
+                            mTrashView.setScaleX(1f);
+                            mTrashView.setScaleY(1f);
+                        }
+                    }
                     break;
                 case MotionEvent.ACTION_UP:
                     onStopDrag();
                     isDrag = false;
+                    if (mDeleteListener != null && inTrash(ev.getX(), ev.getY())) {
+                        mDeleteListener.onDelete(mDragPosition);
+                    }
                     break;
             }
             return true;
         }
         return super.onTouchEvent(ev);
     }
+
     @Override
     public void setAdapter(ListAdapter adapter) {
         super.setAdapter(adapter);
@@ -411,6 +427,56 @@ public class DragGridView extends GridView {
                     "the adapter must be implements DragGridAdapter");
         }
     }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        initRecord();
+    }
+    /**
+     * 手指当前处于垃圾桶图标上
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean inTrash(float x, float y) {
+        x += gridRect.left;
+        y += gridRect.top;
+        if (x > trashRect.left && x < trashRect.right && y > trashRect.top
+                && y < trashRect.bottom) {
+            if (handler != null && mScrollRunnable != null) {
+                handler.removeCallbacks(mScrollRunnable);
+            }
+            if (mDragImageView != null) {
+                mDragImageView.setScaleX(0.6f);
+                mDragImageView.setScaleY(0.6f);
+            }
+            return true;
+        } else {
+            if (mDragImageView != null) {
+                mDragImageView.setScaleX(1f);
+                mDragImageView.setScaleY(1f);
+            }
+            return false;
+        }
+    }
+    /**
+     * 初始化坐标数据
+     */
+    private void initRecord() {
+        gridRect.left = this.getLeft();
+        gridRect.bottom = this.getBottom();
+        gridRect.right = this.getRight();
+        gridRect.top = this.getTop();
+        if (mTrashView != null) {
+            trashRect.left = mTrashView.getLeft();
+            trashRect.right = mTrashView.getRight();
+            trashRect.bottom = mTrashView.getBottom();
+            trashRect.top = mTrashView.getTop();
+        }
+    }
+
     public interface GridBaseAdapter {
         /**
          * 移动时回调
@@ -421,5 +487,53 @@ public class DragGridView extends GridView {
          * 隐藏时回调
          */
         public void setHideItem(int hidePosition);
+    }
+
+    public void setOnMoveListener(onMoveListener l) {
+        mMoveListener = l;
+    }
+
+    public interface onMoveListener {
+        void startMove();
+
+        void finishMove();
+
+        void cancleMove();
+
+    }
+
+    public interface onDeleteListener {
+        void onDelete(int position);
+    }
+
+    public interface OnChanageListener {
+
+        /**
+         * 当item交换位置的时候回调的方法，我们只需要在该方法中实现数据的交换即可
+         *
+         * @param form 开始的position
+         * @param to   拖拽到的position
+         */
+        public void onChange(int form, int to);
+    }
+
+    /**
+     * 设置回调接口
+     *
+     * @param onChanageListener
+     */
+    public void setOnChangeListener(OnChanageListener onChanageListener) {
+        this.onChanageListener = onChanageListener;
+    }
+
+    public void setOnDeleteListener(onDeleteListener l) {
+        this.mDeleteListener = l;
+    }
+
+    private class TouchRect {
+        int top;
+        int bottom;
+        int left;
+        int right;
     }
 }

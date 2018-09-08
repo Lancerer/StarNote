@@ -3,8 +3,11 @@ package com.example.lancer.starnote.ui.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 
 import com.example.lancer.starnote.R;
@@ -14,6 +17,8 @@ import com.example.lancer.starnote.bean.NoteBookData;
 import com.example.lancer.starnote.db.NoteDataDao;
 import com.example.lancer.starnote.ui.activity.MainActivity;
 import com.example.lancer.starnote.ui.activity.NoteBookEditActivity;
+import com.example.lancer.starnote.util.AnimUtils;
+import com.example.lancer.starnote.widget.DragGridView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +30,7 @@ public class NoteBookFragment extends BaseFragment {
     private List<NoteBookData> mLists;
     private DragAdapter mDragAdapter;
     private Activity mActivity;
+    private android.widget.ImageView ivTrash;
 
 
     @Override
@@ -36,6 +42,7 @@ public class NoteBookFragment extends BaseFragment {
     protected void initView(View view) {
 
         dragView = view.findViewById(R.id.dragView);
+        ivTrash = view.findViewById(R.id.iv_trash);
     }
 
     @Override
@@ -58,6 +65,57 @@ public class NoteBookFragment extends BaseFragment {
                 startActivity(intent);
             }
         });
+        //设置GirdView被选中后的背景颜色
+        dragView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+        dragView.setTrashView(ivTrash);
+        dragView.setOnDeleteListener(new DragGridView.onDeleteListener() {
+            @Override
+            public void onDelete(int position) {
+                delete(position);
+            }
+        });
+        dragView.setOnMoveListener(new DragGridView.onMoveListener() {
+            @Override
+            public void startMove() {
+                ivTrash.startAnimation(AnimUtils.getTranslateAnimation(0, 0, ivTrash.getTop(), 0, 500));
+                ivTrash.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void finishMove() {
+
+                ivTrash.startAnimation(AnimUtils.getTranslateAnimation(0, 0, 0, ivTrash.getTop(), 500));
+                ivTrash.setVisibility(View.INVISIBLE);
+                if (mDragAdapter.getDataChange()) {
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            mNoteDataDao.reset(mLists);
+                        }
+                    }.start();
+                }
+            }
+
+            @Override
+            public void cancleMove() {
+
+            }
+        });
+    }
+
+    /**
+     * 删除便签方法
+     *
+     * @param position
+     */
+    private void delete(int position) {
+        int id = mLists.get(position).getId();
+        mNoteDataDao.delete(id);
+        mLists.remove(position);
+        if (mLists != null && mDragAdapter != null) {
+            mDragAdapter.refurbishData(mLists);
+            dragView.setAdapter(mDragAdapter);
+        }
     }
 
     @Override

@@ -7,15 +7,10 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseFragment;
 import com.example.lancer.starnote.bean.NoteBookData;
@@ -26,8 +21,6 @@ import com.example.lancer.starnote.util.Constants;
 import com.example.lancer.starnote.util.DialogUtils;
 import com.example.lancer.starnote.util.StringUtils;
 import com.example.lancer.starnote.util.SystemUtils;
-
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
