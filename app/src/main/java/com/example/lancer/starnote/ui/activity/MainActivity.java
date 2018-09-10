@@ -3,10 +3,7 @@ package com.example.lancer.starnote.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +17,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
-import android.util.Base64;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,19 +27,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.lancer.starnote.BuildConfig;
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseActivity;
 import com.example.lancer.starnote.ui.fragment.ChangeBgFragment;
 import com.example.lancer.starnote.ui.fragment.NoteBookEditFragment;
 import com.example.lancer.starnote.ui.fragment.NoteBookFragment;
-import com.example.lancer.starnote.util.Sputil;
 import com.example.lancer.starnote.util.SystemUtils;
 import com.example.lancer.starnote.widget.CircleImageView;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 
 
 public class MainActivity extends BaseActivity
@@ -62,6 +55,7 @@ public class MainActivity extends BaseActivity
     private CircleImageView mHeadImg = null;
     private android.widget.TextView tvSelectGallery;
     private android.widget.TextView tvSelectCamera;
+    private Uri mImgUri;
 
 
     @Override
@@ -146,7 +140,27 @@ public class MainActivity extends BaseActivity
             @Override
             public void onClick(View v) {
                 //todo 调用相机
-                Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                Toast.makeText(MainActivity.this, "手机未获得该权限", Toast.LENGTH_SHORT).show();
+               /* File file = new File(getExternalCacheDir(), "output_image.jpg");
+                try {
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (Build.VERSION.SDK_INT >= 24) {
+                    mImgUri = FileProvider.getUriForFile(MainActivity.this, "com.example.lancer.starnote.fileprovider", file);
+
+                } else {
+                    mImgUri = Uri.fromFile(file);
+                }
+                //启动相机程序
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImgUri);
+                startActivityForResult(intent, CODE_CAMERA_REQUEST);*/
+
+
+               /* Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
                 // 判断存储卡是否可用，存储照片文件
                 if (hasSdcard()) {
@@ -155,7 +169,7 @@ public class MainActivity extends BaseActivity
                                     .getExternalStorageDirectory(), IMAGE_FILE_NAME)));
                 }
 
-                startActivityForResult(intentFromCapture, CODE_CAMERA_REQUEST);
+                startActivityForResult(intentFromCapture, CODE_CAMERA_REQUEST);*/
             }
         });
         tvSelectGallery.setOnClickListener(new View.OnClickListener() {
@@ -333,11 +347,11 @@ public class MainActivity extends BaseActivity
             ChangeBgFragment changeBgFragment = new ChangeBgFragment();
             changeFragment(changeBgFragment);
             fab.hide();
-        } else if (id == R.id.nav_slideshow) {
+        } /*else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } */else if (id == R.id.nav_share) {
             Intent share_intent = new Intent();
             share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
             share_intent.setType("text/plain");//设置分享内容的类型
@@ -348,10 +362,10 @@ public class MainActivity extends BaseActivity
             this.startActivity(share_intent);
 
 
-        } else if (id == R.id.nav_send) {
+        }/* else if (id == R.id.nav_send) {
 
         }
-
+*/
         mDrawer.closeDrawer(GravityCompat.START);
         return true;
     }

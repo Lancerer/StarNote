@@ -20,7 +20,7 @@
         android:scaleType="centerCrop"
         android:clickable="true"
         android:layout_gravity="center_horizontal"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:layout_width="match_parent"

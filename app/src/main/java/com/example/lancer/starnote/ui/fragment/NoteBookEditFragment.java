@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseFragment;
 import com.example.lancer.starnote.bean.NoteBookData;
@@ -21,6 +22,7 @@ import com.example.lancer.starnote.util.Constants;
 import com.example.lancer.starnote.util.DialogUtils;
 import com.example.lancer.starnote.util.StringUtils;
 import com.example.lancer.starnote.util.SystemUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,10 +80,14 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     //Fab保存功能
     private com.github.clans.fab.FloatingActionButton menuItemSave;
 
+    private int mFontSizeId;
     private static final Map<Integer, Integer> TextFontSelectMap = new HashMap<>();
 
     static {
+        TextFontSelectMap.put(Constants.LARGE, R.id.iv_large_select);
         TextFontSelectMap.put(Constants.SMALL, R.id.iv_small_select);
+        TextFontSelectMap.put(Constants.NORMAL, R.id.iv_medium_select);
+        TextFontSelectMap.put(Constants.SUPER, R.id.iv_super_select);
     }
 
     public static final String WHERE_FROM = "DATA_FROM_WHERE";
@@ -183,7 +189,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     }
 
 
-
     /**
      * 保存笔记
      */
@@ -258,6 +263,8 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                 setTextFont();
                 break;
             case R.id.ll_font_small:
+                noteDetailEdit.setTextSize(100);
+                fontSizeSelector.setVisibility(View.INVISIBLE);
                 break;
             case R.id.ll_font_normal:
                 break;
@@ -278,6 +285,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
      * 设置字体大小方法
      */
     private void setTextFont() {
+        fontSizeSelector.setVisibility(View.VISIBLE);
 
     }
 
@@ -369,7 +377,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                               new SystemUtils(getContext()).setNoteDraft(NoteText + "[草稿]");
+                                new SystemUtils(getContext()).setNoteDraft(NoteText + "[草稿]");
                                 getActivity().finish();
                             }
                         }, new DialogInterface.OnClickListener() {
