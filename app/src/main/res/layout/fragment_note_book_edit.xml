@@ -72,16 +72,16 @@
             android:id="@+id/menu_item_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/save"
+            android:src="@drawable/saveed"
             fab:fab_label="保存"
             fab:fab_size="mini" />
-        <com.github.clans.fab.FloatingActionButton
+      <!--  <com.github.clans.fab.FloatingActionButton
             android:id="@+id/menu_item_text_font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/menu_font_size"
             fab:fab_label="字体大小"
-            fab:fab_size="mini" />
+            fab:fab_size="mini" />-->
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/menu_item_clock"

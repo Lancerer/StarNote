@@ -80,10 +80,8 @@ public class NoteBookFragment extends BaseFragment {
                 ivTrash.startAnimation(AnimUtils.getTranslateAnimation(0, 0, ivTrash.getTop(), 0, 500));
                 ivTrash.setVisibility(View.VISIBLE);
             }
-
             @Override
             public void finishMove() {
-
                 ivTrash.startAnimation(AnimUtils.getTranslateAnimation(0, 0, 0, ivTrash.getTop(), 500));
                 ivTrash.setVisibility(View.INVISIBLE);
                 if (mDragAdapter.getDataChange()) {
@@ -95,10 +93,8 @@ public class NoteBookFragment extends BaseFragment {
                     }.start();
                 }
             }
-
             @Override
             public void cancleMove() {
-
             }
         });
     }

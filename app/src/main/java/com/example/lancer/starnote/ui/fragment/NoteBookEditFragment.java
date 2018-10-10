@@ -1,17 +1,31 @@
 package com.example.lancer.starnote.ui.fragment;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.lancer.starnote.MyApp;
 import com.example.lancer.starnote.R;
 import com.example.lancer.starnote.base.BaseFragment;
 import com.example.lancer.starnote.bean.NoteBookData;
@@ -23,8 +37,13 @@ import com.example.lancer.starnote.util.DialogUtils;
 import com.example.lancer.starnote.util.StringUtils;
 import com.example.lancer.starnote.util.SystemUtils;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class NoteBookEditFragment extends BaseFragment implements View.OnClickListener, View.OnTouchListener {
 
@@ -41,7 +60,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     private android.widget.ImageView noteDetailImgButton;
     private android.widget.ImageView noteDetailImgThumbtack;
     private com.github.clans.fab.FloatingActionMenu floatingActionMenu;
-    private com.github.clans.fab.FloatingActionButton menuItemTextFont;
     private com.github.clans.fab.FloatingActionButton menuItemClock;
     private com.github.clans.fab.FloatingActionButton menuItemDesktop;
     private com.github.clans.fab.FloatingActionButton menuItemShare;
@@ -80,15 +98,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
     //Fab保存功能
     private com.github.clans.fab.FloatingActionButton menuItemSave;
 
-    private int mFontSizeId;
-    private static final Map<Integer, Integer> TextFontSelectMap = new HashMap<>();
-
-    static {
-        TextFontSelectMap.put(Constants.LARGE, R.id.iv_large_select);
-        TextFontSelectMap.put(Constants.SMALL, R.id.iv_small_select);
-        TextFontSelectMap.put(Constants.NORMAL, R.id.iv_medium_select);
-        TextFontSelectMap.put(Constants.SUPER, R.id.iv_super_select);
-    }
+    private AlarmManager mAlarmManager;
 
     public static final String WHERE_FROM = "DATA_FROM_WHERE";
     public static final int FROM_FAB = 1;
@@ -116,7 +126,7 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         noteDetailImgButton = view.findViewById(R.id.note_detail_img_button);
         noteDetailImgThumbtack = view.findViewById(R.id.note_detail_img_thumbtack);
         floatingActionMenu = view.findViewById(R.id.floating_action_menu);
-        menuItemTextFont = view.findViewById(R.id.menu_item_text_font);
+      //  menuItemTextFont = view.findViewById(R.id.menu_item_text_font);
         menuItemClock = view.findViewById(R.id.menu_item_clock);
         menuItemDesktop = view.findViewById(R.id.menu_item_desktop);
         menuItemShare = view.findViewById(R.id.menu_item_share);
@@ -144,6 +154,8 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     protected void initData() {
+        mAlarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+
         //初始化数据库数据
         mNoteDataDao = new NoteDataDao(getContext());
         if (mNoteBookData == null) {
@@ -179,16 +191,11 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         menuItemDesktop.setOnClickListener(this);
         menuItemSave.setOnClickListener(this);
         menuItemShare.setOnClickListener(this);
-        menuItemTextFont.setOnClickListener(this);
 
         //todo 点击调色板调整背景颜色
         noteDetailImgButton.setOnTouchListener(this);
         mLayoutMenu.setOnTouchListener(this);
-
-
     }
-
-
     /**
      * 保存笔记
      */
@@ -206,9 +213,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                     * StringUtils.toInt(
                     StringUtils.getDataTime("dddHHmmss"), 0));
         }
-        // String userId = AccountUtils.getUserId(getActivity());
-        //mNoteBookData.setUserId(userId);
-
         mNoteBookData.setUnixTime(StringUtils.getDataTime("yyyy-MM-dd HH:mm:ss"));
         mNoteBookData.setContent(noteDetailEdit.getText().toString());
         mNoteBookData.setObjectId(mNoteBookData.getObjectId());
@@ -234,8 +238,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
             case R.id.note_detail_img_red:
                 mNoteBookData.setColor(2);
                 break;
-
-
             case R.id.menu_item_save:
                 if (!StringUtils.isEmpty(noteDetailEdit.getText().toString())) {
                     save();
@@ -259,9 +261,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
                     new SystemUtils(getContext()).ShowNote(NoteText, getActivity());
                 }
                 break;
-            case R.id.menu_item_text_font:
-                setTextFont();
-                break;
             case R.id.ll_font_small:
                 noteDetailEdit.setTextSize(100);
                 fontSizeSelector.setVisibility(View.INVISIBLE);
@@ -280,15 +279,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
         noteDetailTitlebar.setBackgroundColor(sTitleBackGrounds[mNoteBookData.getColor()]);
         closeMenu();
     }
-
-    /**
-     * 设置字体大小方法
-     */
-    private void setTextFont() {
-        fontSizeSelector.setVisibility(View.VISIBLE);
-
-    }
-
     public static final String ACTION_ADD_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
 
     /**
@@ -301,10 +291,6 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
 
         // 不允许重复创建
         addShortcutIntent.putExtra("duplicate", false);// 经测试不是根据快捷方式的名字判断重复的
-        // 应该是根据快链的Intent来判断是否重复的,即Intent.EXTRA_SHORTCUT_INTENT字段的value
-        // 但是名称不同时，虽然有的手机系统会显示Toast提示重复，仍然会建立快链
-        // 屏幕上没有空间时会提示
-        // 注意：重复创建的行为MIUI和三星手机上不太一样，小米上似乎不能重复创建快捷方式
 
         // 名字
         addShortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, noteText);
@@ -333,7 +319,55 @@ public class NoteBookEditFragment extends BaseFragment implements View.OnClickLi
      * @param noteText 便签写的东西
      */
     private void setClock(String noteText) {
-        //todo 闹铃功能未实现
+        Calendar calendar = Calendar.getInstance();
+         int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Intent intent = new Intent(getActivity(), RingReceived.class);
+                PendingIntent sender = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));   // 这里时区需要设置一下，不然会有8个小时的时间差
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                long selectTime = calendar.getTimeInMillis();
+                // 进行闹铃注册，设置每天的提醒时间
+                 mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, selectTime, 24 * 60 * 60 * 1000, sender);
+                Toast.makeText(getContext(), "设置成功! ", Toast.LENGTH_LONG).show();
+            }
+        }, hour, minute, true);
+        timePickerDialog.show();
+    }
+
+    public static class RingReceived extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("test", "闹钟响了");
+            Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+           MediaPlayer mMediaPlayer= new MediaPlayer();
+            try {
+                mMediaPlayer.setDataSource(context, alert);
+                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION) != 0) {
+                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+                    mMediaPlayer.setLooping(true);
+                    mMediaPlayer.prepare();
+                    mMediaPlayer.start();
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

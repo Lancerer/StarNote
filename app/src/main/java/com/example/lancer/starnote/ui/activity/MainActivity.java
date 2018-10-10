@@ -141,35 +141,6 @@ public class MainActivity extends BaseActivity
             public void onClick(View v) {
                 //todo 调用相机
                 Toast.makeText(MainActivity.this, "手机未获得该权限", Toast.LENGTH_SHORT).show();
-               /* File file = new File(getExternalCacheDir(), "output_image.jpg");
-                try {
-                    if (file.exists()) file.delete();
-                    file.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (Build.VERSION.SDK_INT >= 24) {
-                    mImgUri = FileProvider.getUriForFile(MainActivity.this, "com.example.lancer.starnote.fileprovider", file);
-
-                } else {
-                    mImgUri = Uri.fromFile(file);
-                }
-                //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImgUri);
-                startActivityForResult(intent, CODE_CAMERA_REQUEST);*/
-
-
-               /* Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                // 判断存储卡是否可用，存储照片文件
-                if (hasSdcard()) {
-                    intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri
-                            .fromFile(new File(Environment
-                                    .getExternalStorageDirectory(), IMAGE_FILE_NAME)));
-                }
-
-                startActivityForResult(intentFromCapture, CODE_CAMERA_REQUEST);*/
             }
         });
         tvSelectGallery.setOnClickListener(new View.OnClickListener() {
@@ -230,7 +201,6 @@ public class MainActivity extends BaseActivity
                 if (intent != null) {
                     setImageToHeadView(intent);//设置头像
                 }
-
                 break;
         }
 
@@ -267,11 +237,6 @@ public class MainActivity extends BaseActivity
         Bundle extras = intent.getExtras();
         if (extras != null) {
             Bitmap photo = extras.getParcelable("data");
-          /*  ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            photo.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream);
-            byte[] bytes = byteArrayOutputStream.toByteArray();
-            String Stringimg = new String(Base64.encodeToString(bytes, Base64.DEFAULT));
-            Sputil.put(this, "headImg", Stringimg);*/
             mHeadImg.setImageBitmap(photo);
         }
     }
@@ -289,6 +254,9 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    /**
+     * 初始化背景图
+     */
     private void initBigPic() {
         SystemUtils systemUtils = new SystemUtils(this);
         String path = systemUtils.getPath();
@@ -315,7 +283,6 @@ public class MainActivity extends BaseActivity
                 mBackPressedTime = curTime;
                 Snackbar.make(mDrawer, "在按一次退出程序", Snackbar.LENGTH_LONG).show();
             }
-            //   super.onBackPressed();
         }
     }
 
@@ -347,11 +314,7 @@ public class MainActivity extends BaseActivity
             ChangeBgFragment changeBgFragment = new ChangeBgFragment();
             changeFragment(changeBgFragment);
             fab.hide();
-        } /*else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } */else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_share) {
             Intent share_intent = new Intent();
             share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
             share_intent.setType("text/plain");//设置分享内容的类型
@@ -360,12 +323,7 @@ public class MainActivity extends BaseActivity
             //创建分享的Dialog
             share_intent = Intent.createChooser(share_intent, "app推荐");
             this.startActivity(share_intent);
-
-
-        }/* else if (id == R.id.nav_send) {
-
         }
-*/
         mDrawer.closeDrawer(GravityCompat.START);
         return true;
     }
